@@ -49,10 +49,18 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 
 // Start server
 const startServer = async () => {
-  await connectDatabase();
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
+  try {
+    console.log('🔄 Connecting to database...');
+    await connectDatabase();
+    console.log('✅ Database connected');
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
 };
 
 startServer();
