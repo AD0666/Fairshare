@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String    @map("password_hash")
+  name           String
+  phone          String?
+  profilePicture String?   @map("profile_picture")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  paidExpenses          Expense[]        @relation("Payer")
+  createdExpenses       Expense[]        @relation("ExpenseCreator")
+  expenseSplits         ExpenseSplit[]
+  createdGroups         Group[]          @relation("GroupCreator")
+  groupMemberships      GroupMember[]
+  sentSettlements       Settlement[]     @relation("Payer")
+  receivedSettlements   Settlement[]     @relation("Receiver")
+  friendsAsUser         Friendship[]     @relation("User")
+  friendsAsFriend       Friendship[]     @relation("Friend")
+
+  @@map("users")
+}
+
+model Group {
+  id        String   @id @default(cuid())
+  name      String
+  image     String?
+  createdBy String   @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  creator   User          @relation("GroupCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  members   GroupMember[]
+  expenses  Expense[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String   @map("group_id")
+  userId    String   @map("user_id")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  // Relations
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@map("group_members")
+}
+
+model Expense {
+  id          String      @id @default(cuid())
+  amount      Float
+  description String
+  date        DateTime
+  category    String
+  payerId     String      @map("payer_id")
+  groupId     String?     @map("group_id")
+  createdBy   String      @map("created_by")
+  receiptImage String?    @map("receipt_image")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  payer       User           @relation("Payer", fields: [payerId], references: [id])
+  creator     User           @relation("ExpenseCreator", fields: [createdBy], references: [id])
+  group       Group?         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  splits      ExpenseSplit[]
+
+  @@map("expenses")
+}
+
+model ExpenseSplit {
+  id              String   @id @default(cuid())
+  expenseId       String   @map("expense_id")
+  userId          String   @map("user_id")
+  amountOwed      Float    @map("amount_owed")
+  paidStatus      Boolean  @default(false) @map("paid_status")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Relations
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+  @@map("expense_splits")
+}
+
+model Settlement {
+  id        String   @id @default(cuid())
+  payerId   String   @map("payer_id")
+  receiverId String  @map("receiver_id")
+  amount    Float
+  date      DateTime @default(now())
+  groupId   String?  @map("group_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  payer    User  @relation("Payer", fields: [payerId], references: [id])
+  receiver User  @relation("Receiver", fields: [receiverId], references: [id])
+
+  @@map("settlements")
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  friendId  String   @map("friend_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user   User @relation("User", fields: [userId], references: [id], onDelete: Cascade)
+  friend User @relation("Friend", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@map("friendships")
+}
+
