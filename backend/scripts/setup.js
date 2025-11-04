@@ -22,5 +22,8 @@ try {
   require('../dist/index.js');
 } catch (error) {
   console.error('❌ Setup failed:', error.message);
+  if (error.stdout) console.error('STDOUT:', error.stdout.toString());
+  if (error.stderr) console.error('STDERR:', error.stderr.toString());
+  console.error('Full error:', error);
   process.exit(1);
 }
