@@ -7,6 +7,11 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { email, password, name } = req.body;
 
+    // Validate input
+    if (!email || !password || !name) {
+      return res.status(400).json({ message: 'Email, password, and name are required' });
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -14,6 +19,12 @@ export const register = async (req: Request, res: Response) => {
 
     if (existingUser) {
       return res.status(400).json({ message: 'User with this email already exists' });
+    }
+
+    // Check JWT_SECRET before proceeding
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not defined in environment variables');
+      return res.status(500).json({ message: 'Server configuration error: JWT_SECRET missing' });
     }
 
     // Hash password and create user
@@ -41,9 +52,13 @@ export const register = async (req: Request, res: Response) => {
       user,
       token,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Failed to register user' });
+    const errorMessage = error?.message || 'Failed to register user';
+    res.status(500).json({ 
+      message: 'Failed to register user',
+      ...(process.env.NODE_ENV === 'development' && { error: errorMessage })
+    });
   }
 };
 
