@@ -17,7 +17,6 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://adfairshare.vercel.app',
   process.env.CLIENT_URL,
 ].filter(Boolean) as string[];
 
@@ -26,11 +25,18 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
+    // Check if origin is in allowed list
     if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+      return callback(null, true);
     }
+    
+    // Allow all Vercel preview and production domains
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Default: reject
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
 }));
