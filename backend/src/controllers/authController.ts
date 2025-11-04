@@ -55,9 +55,11 @@ export const register = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Registration error:', error);
     const errorMessage = error?.message || 'Failed to register user';
+    // Always include error message for debugging
     res.status(500).json({ 
       message: 'Failed to register user',
-      ...(process.env.NODE_ENV === 'development' && { error: errorMessage })
+      error: errorMessage,
+      details: error?.code || error?.name || 'Unknown error'
     });
   }
 };
