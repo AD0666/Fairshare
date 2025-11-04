@@ -55,6 +55,15 @@ export interface CreateExpenseData {
   splits: ExpenseSplit[];
 }
 
+export interface UpdateExpenseData {
+  amount?: number;
+  description?: string;
+  date?: string;
+  category?: string;
+  payerId?: string;
+  splits?: Array<{ userId: string; amount: number }>;
+}
+
 export const expenseService = {
   getExpenses: async (params?: {
     groupId?: string;
@@ -73,7 +82,7 @@ export const expenseService = {
       return expenses;
     }
     const response = await api.get('/expenses', { params });
-    return response.data;
+    return response.data as Expense[];
   },
 
   getExpenseById: async (id: string): Promise<Expense> => {
@@ -82,7 +91,7 @@ export const expenseService = {
       return mockExpenses.find(e => e.id === id) || mockExpenses[0];
     }
     const response = await api.get(`/expenses/${id}`);
-    return response.data;
+    return response.data as Expense;
   },
 
   createExpense: async (data: CreateExpenseData): Promise<Expense> => {
@@ -102,16 +111,17 @@ export const expenseService = {
       };
     }
     const response = await api.post('/expenses', data);
-    return response.data;
+    return response.data as Expense;
   },
 
-  updateExpense: async (id: string, data: Partial<Expense>): Promise<Expense> => {
+  updateExpense: async (id: string, data: UpdateExpenseData): Promise<Expense> => {
     if (USE_MOCK_DATA) {
       await delay(500);
-      return { ...mockExpenses.find(e => e.id === id)!, ...data } as Expense;
+      const existing = mockExpenses.find(e => e.id === id)!;
+      return { ...existing, ...data } as Expense;
     }
     const response = await api.put(`/expenses/${id}`, data);
-    return response.data;
+    return response.data as Expense;
   },
 
   deleteExpense: async (id: string): Promise<void> => {

@@ -5,7 +5,6 @@ import { groupService, Group } from '../services/groupService';
 import Button from '../components/Button';
 import EmptyState from '../components/EmptyState';
 import { Plus, Users } from 'lucide-react';
-import { formatCurrency, formatDate } from '../utils/format';
 
 export default function GroupsPage() {
   const navigate = useNavigate();

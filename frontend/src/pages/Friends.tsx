@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { userService, User } from '../services/userService';
+import { userService } from '../services/userService';
+import { User } from '../services/authService';
 import Button from '../components/Button';
 import EmptyState from '../components/EmptyState';
 import { UserPlus, Trash2 } from 'lucide-react';

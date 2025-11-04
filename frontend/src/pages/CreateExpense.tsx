@@ -121,7 +121,7 @@ export default function CreateExpensePage() {
     }
   };
 
-  const availableParticipants = friends.filter(f => !selectedGroup);
+  const availableParticipants = friends.filter(() => !selectedGroup);
   const allParticipants = selectedGroup 
     ? groups.find(g => g.id === selectedGroup)?.members.map(m => m.user) || []
     : [user!, ...friends].filter(Boolean);
