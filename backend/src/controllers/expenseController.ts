@@ -271,7 +271,7 @@ export const updateExpense = async (req: Request, res: Response) => {
     // Update expense with transaction to handle split changes
     const updatedExpense = await prisma.$transaction(async (tx) => {
       // First, update the expense basic fields
-      const updated = await tx.expense.update({
+      await tx.expense.update({
         where: { id },
         data: {
           ...(amount && { amount }),
