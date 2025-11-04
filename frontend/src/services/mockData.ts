@@ -74,6 +74,11 @@ export const mockExpenses = [
     payerId: '1',
     payer: mockUsers[0],
     createdBy: '1',
+    creator: {
+      id: '1',
+      name: 'John Doe',
+      profilePicture: '',
+    },
     groupId: '1',
     splits: [
       { id: '1', userId: '1', amountOwed: 50, user: mockUsers[0] },
@@ -90,6 +95,11 @@ export const mockExpenses = [
     payerId: '2',
     payer: mockUsers[1],
     createdBy: '2',
+    creator: {
+      id: '2',
+      name: 'Jane Smith',
+      profilePicture: '',
+    },
     groupId: '1',
     splits: [
       { id: '4', userId: '1', amountOwed: 22.5, user: mockUsers[0] },
@@ -105,6 +115,11 @@ export const mockExpenses = [
     payerId: '1',
     payer: mockUsers[0],
     createdBy: '1',
+    creator: {
+      id: '1',
+      name: 'John Doe',
+      profilePicture: '',
+    },
     groupId: '1',
     splits: [
       { id: '6', userId: '1', amountOwed: 106.67, user: mockUsers[0] },

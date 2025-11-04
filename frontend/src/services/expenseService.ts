@@ -98,10 +98,23 @@ export const expenseService = {
     if (USE_MOCK_DATA) {
       await delay(800);
       const payer = mockUsers.find(u => u.id === data.payerId) || mockUsers[0];
+      const creator = mockUsers[0]; // Mock creator - in real app, this comes from auth
       return {
         id: Date.now().toString(),
-        ...data,
+        amount: data.amount,
+        description: data.description,
+        date: data.date,
+        category: data.category,
+        payerId: data.payerId,
         payer: { id: payer.id, name: payer.name },
+        createdBy: creator.id,
+        creator: {
+          id: creator.id,
+          name: creator.name,
+          profilePicture: creator.profilePicture,
+        },
+        groupId: data.groupId,
+        receiptImage: data.receiptImage,
         splits: data.splits.map((split, idx) => ({
           id: (Date.now() + idx).toString(),
           userId: split.userId,
@@ -118,7 +131,26 @@ export const expenseService = {
     if (USE_MOCK_DATA) {
       await delay(500);
       const existing = mockExpenses.find(e => e.id === id)!;
-      return { ...existing, ...data } as Expense;
+      const updatedPayerId = data.payerId ?? existing.payerId;
+      const updatedPayer = mockUsers.find(u => u.id === updatedPayerId) || existing.payer;
+      const updatedSplits = data.splits
+        ? data.splits.map((split, idx) => ({
+            id: `${id}-split-${idx}`,
+            userId: split.userId,
+            amountOwed: split.amount,
+            user: mockUsers.find(u => u.id === split.userId) || mockUsers[0],
+          }))
+        : existing.splits;
+      return {
+        ...existing,
+        amount: data.amount ?? existing.amount,
+        description: data.description ?? existing.description,
+        date: data.date ?? existing.date,
+        category: data.category ?? existing.category,
+        payerId: updatedPayerId,
+        payer: { id: updatedPayer.id, name: updatedPayer.name },
+        splits: updatedSplits,
+      };
     }
     const response = await api.put(`/expenses/${id}`, data);
     return response.data as Expense;
